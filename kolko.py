@@ -1,36 +1,10 @@
 import arcade
 import time
+from shape import Draw_cross1,Draw_cross2,Draw_circle,Draw_frame
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Kółko i Krzyżyk"
-    
-def Draw_cross1(positionX,positionY):
-    addX=positionX*200
-    addY=positionY*200
-    shape=arcade.create_line(0+addX,0+addY,200+addX,200+addY,
-                                arcade.color.RED, 8)
-    return shape
-
-def Draw_cross2(positionX,positionY):
-    addX=positionX*200
-    addY=positionY*200
-    shape2=arcade.create_line(0+addX,200+addY,200+addX,0+addY,
-                               arcade.color.RED, 8)
-    return shape2
-
-def Draw_circle(positionX,positionY):
-    addX=positionX*200
-    addY=positionY*200
-    shape=arcade.create_ellipse_outline(100+addX, 100+addY, 95,95, arcade.color.BLUE,1)
-    return shape
-
-
-def Draw_frame():
-    shape=arcade.create_rectangle_outline(100, 100, 195, 195,arcade.color.BRITISH_RACING_GREEN,10)
-    shape_list = arcade.ShapeElementList()
-    shape_list.append(shape)
-    return shape_list
+SCREEN_TITLE = "Kółko i Krzyżyk"    
 
 class MyGame(arcade.Window):
     def __init__(self, width, height, title):        
@@ -40,6 +14,9 @@ class MyGame(arcade.Window):
         self.mycircle=None
         self.cross=None
         self.Text=None
+        self.scoreX=0
+        self.score0=0
+        self.zwyciesca=0
     def setup(self):
         self.MiejsceX=0
         self.MiejsceY=0
@@ -50,6 +27,7 @@ class MyGame(arcade.Window):
         self.cross=arcade.ShapeElementList()
         self.Text=arcade.ShapeElementList()
         self.frame=Draw_frame()
+        self.end=0              
     def on_draw(self):
         arcade.start_render()
         for x in range(0, 601, 200):
@@ -58,9 +36,13 @@ class MyGame(arcade.Window):
             arcade.draw_line(0, y, 800, y, arcade.color.WHITE, 5)
         self.frame.draw()
         self.cross.draw()
-        self.mycircle.draw()
-        self.Text.draw()
-        arcade.draw_text("END",300, 300, arcade.color.RED, 80)
+        self.mycircle.draw()        
+        arcade.draw_text("Wynik X:"+str(self.scoreX)+" Wynik O:"+str(self.score0),150,550,arcade.color.RED, 30)
+
+        if self.end==1:
+            arcade.draw_text("END", 100, 200, arcade.color.RED, 200)            
+            self.setup()
+        
     def on_update(self, delta_time):
         self.frame.center_x = self.frame.change_x
         self.frame.center_y = self.frame.change_y
@@ -79,22 +61,25 @@ class MyGame(arcade.Window):
         
         for v,k,j in self.InfoMatrix:
             if v==k and k==j and v!=0:
-                arcade.draw_text("END",300, 300, arcade.color.RED, 20)
-                #time.sleep(5)
-                self.setup()
+                self.end=1
+                self.zwyciesca=v
         for i in range(3):
             if self.InfoMatrix[0][i]==self.InfoMatrix[1][i] and self.InfoMatrix[0][i]==self.InfoMatrix[2][i] and self.InfoMatrix[0][i]!=0 :
-                arcade.draw_text("END",300, 300, arcade.color.RED, 80)
-                #time.sleep(5)
-                self.setup()
+                self.end=1
+                self.zwyciesca=self.InfoMatrix[0][i]
         if  self.InfoMatrix[0][0]==self.InfoMatrix[1][1] and self.InfoMatrix[1][1]==self.InfoMatrix[2][2] and self.InfoMatrix[0][0]!=0:
-                arcade.draw_text("END",300, 300, arcade.color.RED, 80)
-                #time.sleep(5)
-                self.setup()
+                self.end=1
+                self.zwyciesca=self.InfoMatrix[0][0]
         if  self.InfoMatrix[0][2]==self.InfoMatrix[1][1] and self.InfoMatrix[1][1]==self.InfoMatrix[2][0] and self.InfoMatrix[0][2]!=0:
-                arcade.draw_text("END",300, 300, arcade.color.RED, 80)
-                #time.sleep(5)
-                self.setup()
+                self.end=1
+                self.zwyciesca=self.InfoMatrix[0][2]
+        if self.zwyciesca==2:
+            self.scoreX+=1
+            self.zwyciesca=0
+        elif self.zwyciesca==1:
+            self.score0+=1
+            self.zwyciesca=0
+
         
     def on_key_press(self, key, modifiers):
         if key == arcade.key.UP:
